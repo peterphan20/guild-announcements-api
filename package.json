@@ -5,12 +5,15 @@
   "main": "./src/server.js",
   "scripts": {
     "start": "nodemon ./src/server.js",
-    "migrate": "node-pg-migrate"
+    "migrate": "node-pg-migrate",
+    "format": "prettier --write .",
+    "lint": "eslint . bin/* --ext .js,.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^10.0.0",
     "fastify": "^3.18.1",
     "fastify-cors": "^6.0.1",
     "fastify-plugin": "^3.0.0",
@@ -18,5 +21,15 @@
     "node-pg-migrate": "^5.10.0",
     "nodemon": "^2.0.10",
     "pg": "^8.6.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.30.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-node": "^4.1.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "husky": "^7.0.1",
+    "prettier": "^2.3.2"
   }
 }

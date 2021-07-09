@@ -1,23 +1,22 @@
-const fastify = require("fastify");
-const app = fastify({ logger: true });
+require('dotenv').config()
+const fastify = require('fastify')
 
-app.register(require("fastify-postgres"), {
-	connectionString: "postgres://postgres@localhost/postgres",
-});
-app.register(require("fastify-cors"));
+const app = fastify({ logger: true })
+const PORT = process.env.PORT || 3000
 
-app.get("/", (request, reply) => {
-  fastify.pg.connet(onConnect)
-});
+app.register(require('fastify-postgres'), {
+  connectionString: 'postgres://postgres@localhost/postgres',
+})
+app.register(require('fastify-cors'))
 
-const onConnect = (err, client, release) => {
-  if (err) return reply.send(err);
+app.get('/', () => 'hello world')
 
-  client.query(
-    
-  )
+const start = async () => {
+  try {
+    await fastify.listen(PORT)
+  } catch (err) {
+    fastify.log.error(err)
+    process.exit(1)
+  }
 }
-
-app.listen(5000, () => {
-	console.log("Server is now listening on port 5000");
-});
+start()
