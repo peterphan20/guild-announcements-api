@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 
-exports.up = (pgm) => {
-	pgm.sql(`
+exports.up = pgm => {
+  pgm.sql(`
     CREATE TABLE users(
       id SERIAL PRIMARY KEY,
       username VARCHAR(50) NOT NULL UNIQUE,
@@ -25,13 +25,13 @@ exports.up = (pgm) => {
       content VARCHAR(2000),
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
-  `);
-};
+  `)
+}
 
-exports.down = (pgm) => {
-	pgm.sql(`
+exports.down = pgm => {
+  pgm.sql(`
     DROP TABLE users;
     DROP TABLE articles;
     DROP TABLE comments; 
-  `);
-};
+  `)
+}
