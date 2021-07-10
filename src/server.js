@@ -1,15 +1,14 @@
 require('dotenv').config()
-const fastify = require('fastify')
+const fastify = require('fastify')({ logger: true })
 
-const app = fastify({ logger: true })
 const PORT = process.env.PORT || 3000
 
-app.register(require('fastify-postgres'), {
+fastify.register(require('fastify-postgres'), {
   connectionString: 'postgres://postgres@localhost/postgres',
 })
-app.register(require('fastify-cors'))
+fastify.register(require('fastify-cors'))
 
-app.get('/', () => 'hello world')
+fastify.get('/', () => 'hello world')
 
 const start = async () => {
   try {
