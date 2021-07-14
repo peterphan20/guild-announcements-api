@@ -3,12 +3,11 @@ const fastify = require('fastify')({ logger: true })
 
 const PORT = process.env.PORT || 3000
 
-fastify.register(require('fastify-postgres'), {
-  connectionString: 'postgres://postgres@localhost/postgres',
-})
 fastify.register(require('fastify-cors'))
-
-fastify.get('/', () => 'hello world')
+fastify.register(require('fastify-postgres'), {
+  connectionString: process.env.DATABASE_URL,
+})
+fastify.register(require('./routes'))
 
 const start = async () => {
   try {

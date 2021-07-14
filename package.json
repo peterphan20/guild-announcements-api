@@ -9,7 +9,8 @@
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.ts",
     "prepare": "husky install",
-    "lintfix": "npm run lint -- --fix && prettier --write *.json *.md docs/*.md"
+    "lintfix": "npm run lint -- --fix && prettier --write *.json *.md docs/*.md",
+    "seed": "node src/seed/seed.js"
   },
   "keywords": [],
   "author": "",

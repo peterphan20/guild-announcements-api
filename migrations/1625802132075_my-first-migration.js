@@ -15,8 +15,8 @@ exports.up = pgm => {
       content VARCHAR(5000),
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       last_edited TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-      img_url VARCHAR(200),
-      video_url VARCHAR(200)
+      img_url VARCHAR(500),
+      video_url VARCHAR(500)
     );
     CREATE TABLE comments (
       comment_id SERIAL PRIMARY KEY,
@@ -30,8 +30,8 @@ exports.up = pgm => {
 
 exports.down = pgm => {
   pgm.sql(`
-    DROP TABLE users;
-    DROP TABLE articles;
     DROP TABLE comments; 
+    DROP TABLE articles;
+    DROP TABLE users;
   `)
 }
