@@ -7,7 +7,7 @@ fastify.register(require('fastify-cors'))
 fastify.register(require('fastify-postgres'), {
   connectionString: process.env.DATABASE_URL,
 })
-fastify.register(require('./routes'))
+fastify.register(require('./routes/userRoutes/userRoutes'))
 
 const start = async () => {
   try {
