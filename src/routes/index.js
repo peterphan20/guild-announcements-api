@@ -1,4 +1,4 @@
-const { createUser } = require('../../schemas/schemas')
+const { createUser } = require('../schemas/schemas')
 
 const userRoutes = async fastify => {
   fastify.get('/users', async () => {
