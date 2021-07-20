@@ -9,7 +9,7 @@ fastify.register(require('fastify-postgres'), {
 })
 fastify.register(require('./routes'))
 
-const start = async () => {
+async function start() {
   try {
     await fastify.listen(PORT)
   } catch (err) {
