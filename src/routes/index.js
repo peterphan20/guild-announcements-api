@@ -1,7 +1,7 @@
 const { createUser, deleteUser } = require('../schemas/schemas')
 
 const userRoutes = async fastify => {
-  fastify.get('/', async () => {
+  fastify.get('/users', async () => {
     const client = await fastify.pg.connect()
     const { rows } = await client.query('SELECT * FROM USERS')
     client.release()
@@ -17,7 +17,7 @@ const userRoutes = async fastify => {
     return rows
   })
 
-  fastify.post('/test', { schema: createUser }, async request => {
+  fastify.post('/users', { schema: createUser }, async request => {
     const newUser = request.body
     const client = await fastify.pg.connect()
     const { rows } = await client.query(

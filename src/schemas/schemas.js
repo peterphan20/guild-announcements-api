@@ -26,4 +26,4 @@ const deleteUser = {
   },
 }
 
-module.exorts = { createUser, deleteUser }
+module.exports = { createUser, deleteUser }
