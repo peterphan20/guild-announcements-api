@@ -17,4 +17,13 @@ const createUser = {
   },
 }
 
-module.exorts = createUser
+const deleteUser = {
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+    },
+  },
+}
+
+module.exports = { createUser, deleteUser }
