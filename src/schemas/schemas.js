@@ -26,4 +26,19 @@ const deleteUser = {
   },
 }
 
-module.exports = { createUser, deleteUser }
+const updateUser = {
+  body: {
+    type: 'object',
+    properties: {
+      password: { type: 'string' },
+    },
+  },
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+    },
+  },
+}
+
+module.exports = { createUser, deleteUser, updateUser }

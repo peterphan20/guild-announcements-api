@@ -1,4 +1,4 @@
-const { createUser, deleteUser } = require('../schemas/schemas')
+const { createUser, deleteUser, updateUser } = require('../schemas/schemas')
 
 const userRoutes = async fastify => {
   fastify.get('/users', async () => {
@@ -32,6 +32,19 @@ const userRoutes = async fastify => {
     const { id } = request.params
     const client = await fastify.pg.connect()
     const { rows } = await client.query('DELETE FROM users WHERE id=$1 RETURNING *;', [id])
+    client.release()
+    return rows
+  })
+
+  fastify.put('/users/:id', { schema: updateUser }, async request => {
+    const { password } = request.body
+    const { id } = request.params
+    const client = await fastify.pg.connect()
+    const { rows } = await client.query('UPDATE users SET password=$1 WHERE id=$2 RETURNING *;', [
+      password,
+      id,
+    ])
+    client.release()
     return rows
   })
 }
