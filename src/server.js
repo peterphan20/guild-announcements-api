@@ -12,7 +12,6 @@ fastify.register(require('fastify-postgres'), {
 })
 fastify.register(require('fastify-esso')(opts))
 fastify.register(require('./routes'))
-fastify.register(require('./routes/authRoutes'))
 
 async function start() {
   try {

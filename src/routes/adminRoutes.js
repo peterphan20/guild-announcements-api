@@ -1,7 +1,6 @@
-const fastify = require('fastify')
 const { deleteUser, updateUser } = require('../schemas/schemas')
 
-const privateRoutes = async () => {
+module.exports = async function privateRoutes(fastify) {
   fastify.requireAuthentication(fastify)
 
   fastify.get('/users/:id', async request => {
@@ -33,7 +32,3 @@ const privateRoutes = async () => {
     return { code: 200, message: `User with id ${id} has been updated.`, rows }
   })
 }
-
-fastify.register(privateRoutes)
-
-module.exports = privateRoutes
