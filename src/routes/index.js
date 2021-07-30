@@ -1,8 +1,9 @@
-module.exports = async function (fastify) {
-  fastify.get('/users', async () => {
-    const client = await fastify.pg.connect()
-    const { rows } = await client.query('SELECT * FROM USERS')
-    client.release()
-    return { code: 200, rows }
-  })
+const userRoutes = require('./userRoutes')
+const authRoutes = require('./authRoutes')
+const adminRoutes = require('./adminRoutes')
+
+module.exports = async function routes(fastify) {
+  fastify.register(userRoutes)
+  fastify.register(authRoutes)
+  fastify.register(adminRoutes)
 }
