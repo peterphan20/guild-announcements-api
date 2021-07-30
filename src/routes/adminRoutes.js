@@ -10,7 +10,7 @@ const privateRoutes = async () => {
       request.params.id,
     ])
     client.release()
-    return rows
+    return { code: 200, rows }
   })
 
   fastify.delete('/users/:id', { schema: deleteUser }, async request => {
@@ -18,7 +18,7 @@ const privateRoutes = async () => {
     const client = await fastify.pg.connect()
     const { rows } = await client.query('DELETE FROM users WHERE id=$1 RETURNING *;', [id])
     client.release()
-    return rows
+    return { code: 200, message: `User with id ${id} has been deleted.`, rows }
   })
 
   fastify.put('/users/:id', { schema: updateUser }, async request => {
@@ -30,7 +30,7 @@ const privateRoutes = async () => {
       id,
     ])
     client.release()
-    return rows
+    return { code: 200, message: `User with id ${id} has been updated.`, rows }
   })
 }
 

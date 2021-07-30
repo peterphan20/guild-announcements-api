@@ -3,17 +3,17 @@ const { createUser, loginUser } = require('../schemas/schemas')
 
 module.exports = async function authenticateUsers(fastify) {
   // Creates user and hash password for db
-  fastify.post('/auth', { schema: createUser }, async (request, reply) => {
+  fastify.post('/auth/create', { schema: createUser }, async request => {
     const { username, password } = request.body
     if (!request.body) {
-      return { message: 'No username or password provided' }
+      return { code: 400, message: 'No username or password provided' }
     }
     if (!username) {
-      return { message: 'No username provided' }
+      return { code: 400, message: 'No username provided' }
     }
     bcrypt.hash(password, 10, async (err, hash) => {
       if (err) {
-        return reply.code(500).send({ message: 'An error occured while hashing password.' })
+        return { code: 500, message: 'An error occured while hashing password.' }
       }
 
       const client = await fastify.pg.connect()
@@ -22,17 +22,17 @@ module.exports = async function authenticateUsers(fastify) {
         [username, hash]
       )
       client.release()
-      return rows
+      return { code: 200, rows }
     })
     return { code: 500, message: 'No idea what happened' }
   })
 
   // Deciphers hashed password from db
   // Authenticate user by comparing deciphered password and password sent from front end
-  fastify.post('/users/auth', { schema: loginUser }, async request => {
+  fastify.post('/auth/login', { schema: loginUser }, async request => {
     const { username, password } = request.body
     if (!request.body) {
-      return { message: 'No username or password provided!' }
+      return { code: 400, message: 'No username or password provided!' }
     }
 
     const client = await fastify.pg.connect()
