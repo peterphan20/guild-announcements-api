@@ -17,6 +17,25 @@ const createUser = {
   },
 }
 
+const loginUser = {
+  body: {
+    type: 'object',
+    required: ['username', 'password'],
+    properties: {
+      username: { type: 'string' },
+      password: { type: 'string' },
+    },
+  },
+  response: {
+    201: {
+      type: 'object',
+      properties: {
+        authenticated: { type: 'boolean' },
+      },
+    },
+  },
+}
+
 const deleteUser = {
   params: {
     type: 'object',
@@ -29,7 +48,9 @@ const deleteUser = {
 const updateUser = {
   body: {
     type: 'object',
+    required: ['username', 'password'],
     properties: {
+      username: { type: 'string' },
       password: { type: 'string' },
     },
   },
@@ -41,4 +62,9 @@ const updateUser = {
   },
 }
 
-module.exports = { createUser, deleteUser, updateUser }
+module.exports = {
+  createUser,
+  loginUser,
+  deleteUser,
+  updateUser,
+}
