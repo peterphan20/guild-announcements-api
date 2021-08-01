@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt')
-const { createUser, loginUser } = require('../schemas/schemas')
+const { createUser, loginUser } = require('../../schemas/usersSchemas')
 
 module.exports = async function authenticateUsers(fastify) {
   // Creates user and hash password for db
@@ -37,7 +37,6 @@ module.exports = async function authenticateUsers(fastify) {
 
     const client = await fastify.pg.connect()
     const { rows } = await client.query('SELECT password FROM users WHERE username=$1', [username])
-    console.log(rows)
     const passwordMatch = await bcrypt.compare(password, rows[0].password)
     if (rows.username && passwordMatch) {
       const wristband = await fastify.generateAuthToken({ user: username })

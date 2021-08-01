@@ -1,13 +1,12 @@
-const { deleteUser, updateUser } = require('../schemas/schemas')
+const { deleteUser, updateUser } = require('../../schemas/usersSchemas')
 
-module.exports = async function privateRoutes(fastify) {
-  fastify.requireAuthentication(fastify)
+module.exports = async function adminUsersRoutes(fastify) {
+  // fastify.requireAuthentication(fastify)
 
   fastify.get('/users/:id', async request => {
+    const { id } = request.params
     const client = await fastify.pg.connect()
-    const { rows } = await client.query('SELECT id, username FROM users WHERE id=$1', [
-      request.params.id,
-    ])
+    const { rows } = await client.query('SELECT id, username FROM users WHERE id=$1', [id])
     client.release()
     return { code: 200, rows }
   })
