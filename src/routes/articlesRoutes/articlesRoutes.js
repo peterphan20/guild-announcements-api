@@ -3,9 +3,15 @@ module.exports = async function articleRoutes(fastify) {
     const client = await fastify.pg.connect()
     const { rows } = await client.query(
       `
-        SELECT title, content, img_url, video_url, last_edited, username 
-        FROM articles 
-        INNER JOIN users ON author_id = id;
+        SELECT 
+          a.title, 
+          a.content, 
+          a.img_url, 
+          a.video_url, 
+          a.last_edited, 
+          u.username 
+        FROM articles a
+        LEFT JOIN users u ON a.author_id = u.id;
       `
     )
     client.release()

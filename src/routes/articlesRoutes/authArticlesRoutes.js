@@ -7,7 +7,29 @@ module.exports = async function authArticlesRoutes(fastify) {
     const { id } = request.params
     const client = await fastify.pg.connect()
     const { rows } = await client.query(
-      'SELECT title, content, img_url, video_url FROM articles WHERE id=$1',
+      `
+      SELECT 
+        a.title, 
+        a.content, 
+        a.img_url, 
+        a.video_url,
+        json_agg(json_build_object(
+          'commentContent', c.content,
+          'createdAt', c.created_at,
+          'username', u.username
+        )) AS comments
+      FROM articles a
+      LEFT JOIN comments c 
+        ON c.article_id = a.article_id
+      LEFT JOIN users u
+        ON u.id = c.author_id
+      WHERE a.article_id=$1
+      GROUP BY 
+        a.title,
+        a.content,
+        a.img_url,
+        a.video_url;
+      `,
       [id]
     )
     client.release()
@@ -28,7 +50,9 @@ module.exports = async function authArticlesRoutes(fastify) {
   fastify.delete('/articles/:id', { schema: deleteArticle }, async request => {
     const { id } = request.params
     const client = await fastify.pg.connect()
-    const { rows } = await client.query('DELETE FROM articles WHERE id=$1 RETURNING *;', [id])
+    const { rows } = await client.query('DELETE FROM articles WHERE article_id=$1 RETURNING *;', [
+      id,
+    ])
     client.release()
     return { code: 200, message: `Successfully deleted articles with id ${id}.`, rows }
   })
@@ -38,7 +62,7 @@ module.exports = async function authArticlesRoutes(fastify) {
     const { id } = request.params
     const client = await fastify.pg.connect()
     const { rows } = await client.query(
-      'UPDATE articles SET title=$1, content=$2, img_url=$3, video_url=$4 WHERE id=$5 RETURNING *;',
+      'UPDATE articles SET title=$1, content=$2, img_url=$3, video_url=$4 WHERE article_id=$5 RETURNING *;',
       [title, content, imgURL, videoURL, id]
     )
     client.release()
