@@ -2,9 +2,12 @@ const { createComment, deleteComment, updateComment } = require('../../schemas/c
 
 module.exports = async function authCommentRoutes(fastify) {
   fastify.post('/comments', { schema: createComment }, async request => {
-    const { content } = request.body
+    const { content, authorID, articleID } = request.body
     const client = await fastify.pg.connect()
-    const { rows } = await client.query('INSERT INTO comments (content) VALUES ($1)', [content])
+    const { rows } = await client.query(
+      'INSERT INTO comments (content, author_id, article_id) VALUES ($1, $2, $3) RETUNING *;',
+      [content, authorID, articleID]
+    )
     client.release()
     return { code: 201, message: 'Comment has been created.', rows }
   })
