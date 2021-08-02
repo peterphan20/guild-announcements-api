@@ -1,4 +1,4 @@
-const { createArticle, deleteArticle, updateArticles } = require('../../schemas/articlesShemas')
+const { createArticle, deleteArticle, updateArticles } = require('../../schemas/articlesSchemas')
 
 module.exports = async function authArticlesRoutes(fastify) {
   fastify.requireAuthentication(fastify)
@@ -44,7 +44,7 @@ module.exports = async function authArticlesRoutes(fastify) {
       [title, content, imgURL, videoURL]
     )
     client.release()
-    return { code: 200, message: `Successfully created articles ${title}`, rows }
+    return { code: 201, message: `Successfully created articles ${title}.`, rows }
   })
 
   fastify.delete('/articles/:id', { schema: deleteArticle }, async request => {
@@ -66,6 +66,6 @@ module.exports = async function authArticlesRoutes(fastify) {
       [title, content, imgURL, videoURL, id]
     )
     client.release()
-    return { code: 200, message: `Sucessfully updated articles with id ${id}`, rows }
+    return { code: 200, message: `Sucessfully updated articles with id ${id}.`, rows }
   })
 }

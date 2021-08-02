@@ -21,7 +21,11 @@ module.exports = async function authenticateUsers(fastify) {
         [username, hash]
       )
       client.release()
-      return { code: 200, rows }
+      return {
+        code: 201,
+        message: 'User succesfully created!',
+        rows,
+      }
     })
     return { code: 500, message: 'No idea what happened' }
   })
@@ -41,7 +45,7 @@ module.exports = async function authenticateUsers(fastify) {
     if (rows.username && passwordMatch) {
       const wristband = await fastify.generateAuthToken({ user: username })
       return {
-        code: 200,
+        code: 201,
         message: 'Successfully logged in!',
         wristband: wristband,
       }
