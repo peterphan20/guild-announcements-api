@@ -3,7 +3,7 @@ module.exports = async function articleRoutes(fastify) {
     const client = await fastify.pg.connect()
     const { rows } = await client.query(
       `
-        SELECT title, content, imageURL, videoURL, last_edited, username 
+        SELECT title, content, img_url, video_url, last_edited, username 
         FROM articles 
         INNER JOIN users ON author_id = id;
       `

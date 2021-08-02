@@ -15,8 +15,8 @@ exports.up = pgm => {
       content VARCHAR(5000),
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       last_edited TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-      imageURL VARCHAR(500),
-      videoURL VARCHAR(500)
+      img_url VARCHAR(500),
+      video_url VARCHAR(500)
     );
     CREATE TABLE comments (
       comment_id SERIAL PRIMARY KEY,

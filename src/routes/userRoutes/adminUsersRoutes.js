@@ -1,7 +1,7 @@
 const { deleteUser, updateUser } = require('../../schemas/usersSchemas')
 
 module.exports = async function adminUsersRoutes(fastify) {
-  // fastify.requireAuthentication(fastify)
+  fastify.requireAuthentication(fastify)
 
   fastify.get('/users/:id', async request => {
     const { id } = request.params

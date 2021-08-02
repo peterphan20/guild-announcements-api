@@ -5,12 +5,11 @@ module.exports = async function authenticateUsers(fastify) {
   // Creates user and hash password for db
   fastify.post('/auth/create', { schema: createUser }, async request => {
     const { username, password } = request.body
-    if (!request.body) {
-      return { code: 400, message: 'No username or password provided' }
+
+    if (!username || !password) {
+      return { code: 400, message: 'No username or password provided.' }
     }
-    if (!username) {
-      return { code: 400, message: 'No username provided' }
-    }
+
     bcrypt.hash(password, 10, async (err, hash) => {
       if (err) {
         return { code: 500, message: 'An error occured while hashing password.' }
@@ -31,8 +30,9 @@ module.exports = async function authenticateUsers(fastify) {
   // Authenticate user by comparing deciphered password and password sent from front end
   fastify.post('/auth/login', { schema: loginUser }, async request => {
     const { username, password } = request.body
-    if (!request.body) {
-      return { code: 400, message: 'No username or password provided!' }
+
+    if (!username || !password) {
+      return { code: 400, message: 'No username or password provided.' }
     }
 
     const client = await fastify.pg.connect()
