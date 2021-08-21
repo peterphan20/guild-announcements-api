@@ -7,8 +7,8 @@ module.exports = async function articleRoutes(fastify) {
           a.article_id,
           a.title, 
           a.content, 
-          a.img_url, 
-          a.video_url, 
+          a.img_url AS "imageUrl", 
+          a.video_url AS "videoUrl", 
           a.created_at,
           a.last_edited, 
           u.username 
@@ -25,27 +25,35 @@ module.exports = async function articleRoutes(fastify) {
     const client = await fastify.pg.connect()
     const { rows } = await client.query(
       `
-      SELECT 
+      SELECT
         a.title, 
         a.content, 
-        a.img_url, 
-        a.video_url,
+        a.img_url AS "imageUrl",
+        a.video_url AS "videoUrl",
+        a.created_at::date AS "createdAt",
+        u.username AS "articleAuthor",
         json_agg(json_build_object(
+          'commentId', c.comment_id,
           'commentContent', c.content,
           'createdAt', c.created_at,
-          'username', u.username
+          'commentAuthorId', c.author_id,
+          'commentAuthor', (
+            SELECT username FROM users WHERE users.id = c.author_id
+          )
         )) AS comments
       FROM articles a
       LEFT JOIN comments c 
         ON c.article_id = a.article_id
       LEFT JOIN users u
-        ON u.id = c.author_id
+        ON u.id = a.author_id
       WHERE a.article_id=$1
       GROUP BY 
         a.title,
         a.content,
         a.img_url,
-        a.video_url;
+        a.video_url,
+        a.created_at,
+        u.username;
       `,
       [id]
     )

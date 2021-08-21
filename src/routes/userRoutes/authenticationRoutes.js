@@ -7,27 +7,17 @@ module.exports = async function authenticateUsers(fastify) {
     const { username, password } = request.body
 
     if (!username || !password) {
-      return { code: 400, message: 'No username or password provided.' }
+      return { code: 400, message: 'Invalid username or password provided.' }
     }
 
-    bcrypt.hash(password, 10, async (err, hash) => {
-      if (err) {
-        return { code: 500, message: 'An error occured while hashing password.' }
-      }
-
-      const client = await fastify.pg.connect()
-      const { rows } = await client.query(
-        'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *;',
-        [username, hash]
-      )
-      client.release()
-      return {
-        code: 201,
-        message: 'User succesfully created!',
-        rows,
-      }
-    })
-    return { code: 500, message: 'No idea what happened' }
+    const hash = await bcrypt.hash(password, 10)
+    const client = await fastify.pg.connect()
+    await client.query('INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *;', [
+      username,
+      hash,
+    ])
+    client.release()
+    return { code: 200, message: 'User successfully created' }
   })
 
   // Deciphers hashed password from db
@@ -35,21 +25,24 @@ module.exports = async function authenticateUsers(fastify) {
   fastify.post('/auth/login', { schema: loginUser }, async request => {
     const { username, password } = request.body
 
-    if (!username || !password) {
-      return { code: 400, message: 'No username or password provided.' }
+    if (!username) {
+      return { code: 400, message: 'Invalid username or password provided.' }
     }
 
     const client = await fastify.pg.connect()
-    const { rows } = await client.query('SELECT password FROM users WHERE username=$1', [username])
+    const { rows } = await client.query('SELECT password, id FROM users WHERE username=$1', [
+      username,
+    ])
     const passwordMatch = await bcrypt.compare(password, rows[0].password)
-    if (rows.username && passwordMatch) {
+    if (passwordMatch) {
       const wristband = await fastify.generateAuthToken({ user: username })
       return {
-        code: 201,
+        code: 200,
         message: 'Successfully logged in!',
+        userId: rows[0].id,
         wristband: wristband,
       }
     }
-    return { code: 500, message: 'No idea what is happening' }
+    return { code: 400, message: 'Invalid username or password provided.' }
   })
 }
