@@ -17,7 +17,10 @@ module.exports = async function authenticateUsers(fastify) {
       hash,
     ])
     client.release()
-    return { code: 200, message: 'User successfully created' }
+    return {
+      code: 201,
+      message: 'User successfully created!',
+    }
   })
 
   // Deciphers hashed password from db
@@ -35,14 +38,14 @@ module.exports = async function authenticateUsers(fastify) {
     ])
     const passwordMatch = await bcrypt.compare(password, rows[0].password)
     if (passwordMatch) {
-      const wristband = await fastify.generateAuthToken({ user: username })
+      const token = fastify.jwt.sign({ username, password })
       return {
         code: 200,
         message: 'Successfully logged in!',
         userId: rows[0].id,
-        wristband: wristband,
+        token,
       }
     }
-    return { code: 400, message: 'Invalid username or password provided.' }
+    return { code: 400, message: 'Incorrect username or password. Please try again!' }
   })
 }
