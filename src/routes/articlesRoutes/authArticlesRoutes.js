@@ -1,8 +1,6 @@
 const { createArticle, deleteArticle, updateArticles } = require('../../schemas/articlesSchemas')
 
 module.exports = async function authArticlesRoutes(fastify) {
-  fastify.requireAuthentication(fastify)
-
   fastify.post('/articles', { schema: createArticle }, async request => {
     const { title, content, imgURL, videoURL } = request.body
     const client = await fastify.pg.connect()
