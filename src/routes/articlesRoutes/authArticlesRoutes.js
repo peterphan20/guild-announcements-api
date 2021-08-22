@@ -26,10 +26,9 @@ module.exports = async function authArticlesRoutes(fastify) {
         }
       } catch (error) {
         console.error(error)
+        return done(new Error(error))
       }
-      return done(new Error('Something has gone wrong!'))
     })
-    return done(new Error('Something has gone wrong!'))
   })
   fastify.register(require('fastify-auth'))
   fastify.after(() => {
