@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt')
+const { createComment, deleteComment, updateComment } = require('../../schemas/commentsSchema')
 
 module.exports = async function authCommentRoutes(fastify) {
   // eslint-disable-next-line
@@ -29,11 +30,12 @@ module.exports = async function authCommentRoutes(fastify) {
     })
   })
 
-  fastify.register('fastify-auth')
+  fastify.register(require('fastify-auth'))
   fastify.after(() => {
     fastify.route({
       method: 'POST',
       url: '/comments',
+      schema: createComment,
       preHandler: fastify.auth([fastify.verifyJWT], {
         relation: 'and',
       }),
@@ -52,6 +54,7 @@ module.exports = async function authCommentRoutes(fastify) {
     fastify.route({
       method: 'DELETE',
       url: '/comments/:id',
+      schema: deleteComment,
       preHandler: fastify.auth([fastify.verifyJWT], {
         relation: 'and',
       }),
@@ -70,6 +73,7 @@ module.exports = async function authCommentRoutes(fastify) {
     fastify.route({
       method: 'PUT',
       url: '/comments/:id',
+      schema: updateComment,
       preHandler: fastify.auth([fastify.verifyJWT], {
         relation: 'and',
       }),

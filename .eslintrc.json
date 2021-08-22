@@ -1,6 +1,7 @@
 {
   "extends": ["airbnb-base", "plugin:node/recommended"],
   "rules": {
+    "global-require": "off",
     "no-unused-vars": "error",
     "no-console": "off",
     "func-names": "off",

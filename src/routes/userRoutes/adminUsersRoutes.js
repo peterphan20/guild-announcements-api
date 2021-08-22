@@ -1,14 +1,6 @@
 const { deleteUser, updateUser } = require('../../schemas/usersSchemas')
 
 module.exports = async function adminUsersRoutes(fastify) {
-  fastify.get('/users/:id', async request => {
-    const { id } = request.params
-    const client = await fastify.pg.connect()
-    const { rows } = await client.query('SELECT id, username FROM users WHERE id=$1', [id])
-    client.release()
-    return { code: 200, rows }
-  })
-
   fastify.delete('/users/:id', { schema: deleteUser }, async request => {
     const { id } = request.params
     const client = await fastify.pg.connect()
