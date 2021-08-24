@@ -33,10 +33,10 @@ module.exports = async function articleRoutes(fastify) {
         a.created_at::date AS "createdAt",
         u.username AS "articleAuthor",
         json_agg(json_build_object(
-          'commentId', c.comment_id,
+          'commentID', c.comment_id,
           'commentContent', c.content,
           'createdAt', c.created_at,
-          'commentAuthorId', c.author_id,
+          'commentAuthorID', c.author_id,
           'commentAuthor', (
             SELECT username FROM users WHERE users.id = c.author_id
           )

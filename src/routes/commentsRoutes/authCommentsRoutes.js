@@ -2,34 +2,32 @@ const bcrypt = require('bcrypt')
 const { createComment, deleteComment, updateComment } = require('../../schemas/commentsSchema')
 
 module.exports = async function authCommentRoutes(fastify) {
-  // eslint-disable-next-line
   fastify.decorate('verifyJWT', (request, reply, done) => {
-    const { jwt } = this
+    const { jwt } = fastify
 
     if (!request.raw.headers.auth) {
       return done(new Error('Missing token header'))
     }
-    // eslint-disable-next-line
+
     jwt.verify(request.raw.headers.auth, async (err, decoded) => {
       try {
         const { username, password } = decoded
-        // refactor into helper function
+        // TODO refactor into helper function
         const client = await fastify.pg.connect()
         const { rows } = await client.query('SELECT password, id FROM users WHERE username=$1', [
           username,
         ])
         const passwordMatch = await bcrypt.compare(password, rows[0].password)
-        //
         if (passwordMatch) {
           console.log('User has been validated and password matched')
-          done()
+          return done()
         }
       } catch (error) {
         console.error(error)
+        return done(new Error(error))
       }
     })
   })
-
   fastify.register(require('fastify-auth'))
   fastify.after(() => {
     fastify.route({
@@ -52,41 +50,41 @@ module.exports = async function authCommentRoutes(fastify) {
     })
 
     fastify.route({
-      method: 'DELETE',
-      url: '/comments/:id',
-      schema: deleteComment,
-      preHandler: fastify.auth([fastify.verifyJWT], {
-        relation: 'and',
-      }),
-      handler: async request => {
-        const { id } = request.params
-        const client = await fastify.pg.connect()
-        const { rows } = await client.query(
-          'DELETE FROM comments WHERE comment_id=$1 RETURNING *;',
-          [id]
-        )
-        client.release()
-        return { code: 200, message: `Comment with id ${id} has been deleted.`, rows }
-      },
-    })
-
-    fastify.route({
       method: 'PUT',
-      url: '/comments/:id',
+      url: '/comments/:commentID',
       schema: updateComment,
       preHandler: fastify.auth([fastify.verifyJWT], {
         relation: 'and',
       }),
       handler: async request => {
-        const { id } = request.params
+        const { commentID } = request.params
         const { content } = request.body
         const client = await fastify.pg.connect()
         const { rows } = await client.query(
           'UPDATE comments SET content=$1 WHERE comment_id=$2 RETURNING *;',
-          [content, id]
+          [content, commentID]
         )
         client.release()
-        return { code: 200, message: `Comment with id ${id} has been updated.`, rows }
+        return { code: 200, message: `Comment with id ${commentID} has been updated.`, rows }
+      },
+    })
+
+    fastify.route({
+      method: 'DELETE',
+      url: '/comments/:commentID',
+      schema: deleteComment,
+      preHandler: fastify.auth([fastify.verifyJWT], {
+        relation: 'and',
+      }),
+      handler: async request => {
+        const { commentID } = request.params
+        const client = await fastify.pg.connect()
+        const { rows } = await client.query(
+          'DELETE FROM comments WHERE comment_id=$1 RETURNING *;',
+          [commentID]
+        )
+        client.release()
+        return { code: 200, message: `Comment with id ${commentID} has been deleted.`, rows }
       },
     })
   })

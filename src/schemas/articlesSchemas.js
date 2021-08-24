@@ -1,7 +1,7 @@
 const createArticle = {
   body: {
     type: 'object',
-    required: ['title', 'content'],
+    required: ['title', 'content', 'img_url'],
     properties: {
       title: { type: 'string' },
       content: { type: 'string' },
