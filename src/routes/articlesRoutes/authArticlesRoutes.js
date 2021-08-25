@@ -1,5 +1,4 @@
 const bcrypt = require('bcrypt')
-const { createArticle, deleteArticle, updateArticles } = require('../../schemas/articlesSchemas')
 
 module.exports = async function authArticlesRoutes(fastify) {
   fastify.decorate('verifyJWT', (request, reply, done) => {
@@ -28,12 +27,52 @@ module.exports = async function authArticlesRoutes(fastify) {
       }
     })
   })
+  fastify.decorate('verifyOwnership', (request, reply, done) => {
+    const { jwt } = fastify
+
+    if (!request.raw.headers.auth) {
+      return done(new Error('Missing token header'))
+    }
+
+    jwt.verify(request.raw.headers.auth, async (err, decoded) => {
+      try {
+        const { username } = decoded
+        const { articleID } = request.params
+        // TODO refactor into helper function
+        const client = await fastify.pg.connect()
+        const { rows } = await client.query(
+          `
+          SELECT
+            u.id,
+            u.username, 
+            a.author_id,
+            a.article_id,
+            CASE 
+              WHEN a.author_id = u.id THEN true
+              ELSE false 
+            END AS "userOwnArticle"
+          FROM articles a
+          LEFT JOIN users u ON u.username = $1
+          WHERE a.article_id = $2;
+          `,
+          [username, articleID]
+        )
+        console.log('================>', rows)
+        if (rows[0].userOwnArticle) {
+          return done()
+        }
+        return done(new Error('User does not own this comment'))
+      } catch (error) {
+        console.error(error)
+        return done(new Error(error))
+      }
+    })
+  })
   fastify.register(require('fastify-auth'))
   fastify.after(() => {
     fastify.route({
       method: 'POST',
       url: '/articles',
-      schema: createArticle,
       preHandler: fastify.auth([fastify.verifyJWT], {
         relation: 'and',
       }),
@@ -52,8 +91,7 @@ module.exports = async function authArticlesRoutes(fastify) {
     fastify.route({
       method: 'PUT',
       url: '/articles/:articleID',
-      schema: updateArticles,
-      preHandler: fastify.auth([fastify.verifyJWT], {
+      preHandler: fastify.auth([fastify.verifyJWT, fastify.verifyOwnership], {
         relation: 'and',
       }),
       handler: async request => {
@@ -72,8 +110,7 @@ module.exports = async function authArticlesRoutes(fastify) {
     fastify.route({
       method: 'DELETE',
       url: '/articles/:articleID',
-      schema: deleteArticle,
-      preHandler: fastify.auth([fastify.verifyJWT], {
+      preHandler: fastify.auth([fastify.verifyJWT, fastify.verifyOwnership], {
         relation: 'and',
       }),
       handler: async request => {

@@ -1,5 +1,4 @@
 const bcrypt = require('bcrypt')
-const { deleteUser } = require('../../schemas/usersSchemas')
 
 module.exports = async function adminUsersRoutes(fastify) {
   fastify.decorate('verifyJWT', (request, reply, done) => {
@@ -33,7 +32,6 @@ module.exports = async function adminUsersRoutes(fastify) {
     fastify.route({
       method: 'DELETE',
       url: '/users/:userID',
-      schema: deleteUser,
       preHandler: fastify.auth([fastify.verifyJWT], {
         relation: 'and',
       }),

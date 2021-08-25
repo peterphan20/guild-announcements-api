@@ -51,14 +51,14 @@ module.exports = async function authCommentRoutes(fastify) {
             CASE 
               WHEN c.author_id = u.id THEN true
               ELSE false 
-            END AS "userOwnsComment"
+            END AS "userOwnComment"
           FROM comments c
           LEFT JOIN users u ON u.username = $1
           WHERE c.comment_id = $2;
           `,
           [username, commentID]
         )
-        if (rows[0].userOwnsComment) {
+        if (rows[0].userOwnComment) {
           return done()
         }
         return done(new Error('User does not own this comment'))
@@ -93,7 +93,7 @@ module.exports = async function authCommentRoutes(fastify) {
       method: 'PUT',
       url: '/comments/:commentID',
       schema: updateComment,
-      preHandler: fastify.auth([fastify.verifyJWT], {
+      preHandler: fastify.auth([fastify.verifyJWT, fastify.verifyOwnership], {
         relation: 'and',
       }),
       handler: async request => {

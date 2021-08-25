@@ -26,6 +26,7 @@ module.exports = async function articleRoutes(fastify) {
     const { rows } = await client.query(
       `
       SELECT
+        a.article_id AS "articleID",
         a.title, 
         a.content, 
         a.img_url AS "imageUrl",
@@ -48,6 +49,7 @@ module.exports = async function articleRoutes(fastify) {
         ON u.id = a.author_id
       WHERE a.article_id=$1
       GROUP BY 
+        a.article_id,
         a.title,
         a.content,
         a.img_url,
