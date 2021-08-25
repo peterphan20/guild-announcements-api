@@ -28,6 +28,46 @@ module.exports = async function authCommentRoutes(fastify) {
       }
     })
   })
+  fastify.decorate('verifyOwnership', (request, reply, done) => {
+    const { jwt } = fastify
+
+    if (!request.raw.headers.auth) {
+      return done(new Error('Missing token header'))
+    }
+
+    jwt.verify(request.raw.headers.auth, async (err, decoded) => {
+      try {
+        const { username } = decoded
+        const { commentID } = request.params
+        // TODO refactor into helper function
+        const client = await fastify.pg.connect()
+        const { rows } = await client.query(
+          `
+          SELECT
+            u.id,
+            u.username, 
+            c.author_id,
+            c.comment_id,
+            CASE 
+              WHEN c.author_id = u.id THEN true
+              ELSE false 
+            END AS "userOwnsComment"
+          FROM comments c
+          LEFT JOIN users u ON u.username = $1
+          WHERE c.comment_id = $2;
+          `,
+          [username, commentID]
+        )
+        if (rows[0].userOwnsComment) {
+          return done()
+        }
+        return done(new Error('User does not own this comment'))
+      } catch (error) {
+        console.error(error)
+        return done(new Error(error))
+      }
+    })
+  })
   fastify.register(require('fastify-auth'))
   fastify.after(() => {
     fastify.route({
@@ -73,7 +113,7 @@ module.exports = async function authCommentRoutes(fastify) {
       method: 'DELETE',
       url: '/comments/:commentID',
       schema: deleteComment,
-      preHandler: fastify.auth([fastify.verifyJWT], {
+      preHandler: fastify.auth([fastify.verifyJWT, fastify.verifyOwnership], {
         relation: 'and',
       }),
       handler: async request => {
