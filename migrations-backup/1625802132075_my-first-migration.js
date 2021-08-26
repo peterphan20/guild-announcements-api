@@ -10,8 +10,7 @@ exports.up = pgm => {
     );
     CREATE TABLE articles(
       article_id SERIAL PRIMARY KEY,
-      author_id INTEGER REFERENCES users(id)
-        ON DELETE SET NULL,
+      author_id INTEGER REFERENCES users(id),
       title VARCHAR(50),
       content VARCHAR(5000),
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -21,10 +20,8 @@ exports.up = pgm => {
     );
     CREATE TABLE comments (
       comment_id SERIAL PRIMARY KEY,
-      author_id INTEGER REFERENCES users(id)
-        ON DELETE SET NULL,
-      article_id INTEGER REFERENCES articles(article_id)
-        ON DELETE SET NULL,
+      author_id INTEGER REFERENCES users(id),
+      article_id INTEGER REFERENCES articles(article_id),
       content VARCHAR(2000),
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
