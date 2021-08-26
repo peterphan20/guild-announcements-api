@@ -10,7 +10,9 @@ if (process.env.NODE_ENV === 'production') {
 fastify.register(require('fastify-cors'))
 fastify.register(require('fastify-postgres'), {
   connectionString,
-  rejectUnauthorized: false,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 })
 fastify.register(require('fastify-jwt'), {
   secret: process.env.SECRET_KEY,
