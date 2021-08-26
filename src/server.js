@@ -2,14 +2,10 @@ require('dotenv').config()
 const fastify = require('fastify')({ logger: true })
 
 const PORT = process.env.PORT || 3000
-let connectionString = process.env.DATABASE_URL
-if (process.env.NODE_ENV === 'production') {
-  connectionString += '?ssl=true'
-}
 
 fastify.register(require('fastify-cors'))
 fastify.register(require('fastify-postgres'), {
-  connectionString,
+  connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false,
   },
