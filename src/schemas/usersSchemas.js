@@ -11,7 +11,7 @@ const createUser = {
     201: {
       type: 'object',
       properties: {
-        create: { type: 'boolean' },
+        created: { type: 'boolean' },
       },
     },
   },
