@@ -1,32 +1,7 @@
-const bcrypt = require('bcrypt')
+const requireAuthentication = require('../../plugins/requireAuthentication')
 
 module.exports = async function authArticlesRoutes(fastify) {
-  fastify.decorate('verifyJWT', (request, reply, done) => {
-    const { jwt } = fastify
-
-    if (!request.raw.headers.auth) {
-      return done(new Error('Missing token header'))
-    }
-
-    jwt.verify(request.raw.headers.auth, async (err, decoded) => {
-      try {
-        const { username, password } = decoded
-        // TODO refactor into helper function
-        const client = await fastify.pg.connect()
-        const { rows } = await client.query('SELECT password, id FROM users WHERE username=$1', [
-          username,
-        ])
-        const passwordMatch = await bcrypt.compare(password, rows[0].password)
-        if (passwordMatch) {
-          console.log('User has been validated and password matched')
-          return done()
-        }
-      } catch (error) {
-        console.error(error)
-        return done(new Error(error))
-      }
-    })
-  })
+  fastify.register(requireAuthentication)
   fastify.decorate('verifyOwnership', (request, reply, done) => {
     const { jwt } = fastify
 
@@ -38,7 +13,6 @@ module.exports = async function authArticlesRoutes(fastify) {
       try {
         const { username } = decoded
         const { articleID } = request.params
-        // TODO refactor into helper function
         const client = await fastify.pg.connect()
         const { rows } = await client.query(
           `
@@ -57,7 +31,7 @@ module.exports = async function authArticlesRoutes(fastify) {
           `,
           [username, articleID]
         )
-        console.log('================>', rows)
+        client.release()
         if (rows[0].userOwnArticle) {
           return done()
         }

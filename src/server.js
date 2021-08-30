@@ -6,9 +6,12 @@ const PORT = process.env.PORT || 3000
 fastify.register(require('fastify-cors'))
 fastify.register(require('fastify-postgres'), {
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  ssl:
+    process.env.NODE_ENV === 'production'
+      ? {
+          rejectUnauthorized: false,
+        }
+      : null,
 })
 fastify.register(require('fastify-jwt'), {
   secret: process.env.SECRET_KEY,

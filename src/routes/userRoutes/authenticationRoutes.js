@@ -36,6 +36,7 @@ module.exports = async function authenticateUsers(fastify) {
     const { rows } = await client.query('SELECT password, id FROM users WHERE username=$1', [
       username,
     ])
+    client.release()
     const passwordMatch = await bcrypt.compare(password, rows[0].password)
     if (passwordMatch) {
       const token = fastify.jwt.sign({ username, password })

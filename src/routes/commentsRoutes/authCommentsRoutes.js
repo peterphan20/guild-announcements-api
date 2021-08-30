@@ -1,33 +1,8 @@
-const bcrypt = require('bcrypt')
+const requireAuthentication = require('../../plugins/requireAuthentication')
 const { createComment, deleteComment, updateComment } = require('../../schemas/commentsSchema')
 
 module.exports = async function authCommentRoutes(fastify) {
-  fastify.decorate('verifyJWT', (request, reply, done) => {
-    const { jwt } = fastify
-
-    if (!request.raw.headers.auth) {
-      return done(new Error('Missing token header'))
-    }
-
-    jwt.verify(request.raw.headers.auth, async (err, decoded) => {
-      try {
-        const { username, password } = decoded
-        // TODO refactor into helper function
-        const client = await fastify.pg.connect()
-        const { rows } = await client.query('SELECT password, id FROM users WHERE username=$1', [
-          username,
-        ])
-        const passwordMatch = await bcrypt.compare(password, rows[0].password)
-        if (passwordMatch) {
-          console.log('User has been validated and password matched')
-          return done()
-        }
-      } catch (error) {
-        console.error(error)
-        return done(new Error(error))
-      }
-    })
-  })
+  fastify.register(requireAuthentication)
   fastify.decorate('verifyOwnership', (request, reply, done) => {
     const { jwt } = fastify
 
@@ -39,7 +14,6 @@ module.exports = async function authCommentRoutes(fastify) {
       try {
         const { username } = decoded
         const { commentID } = request.params
-        // TODO refactor into helper function
         const client = await fastify.pg.connect()
         const { rows } = await client.query(
           `
@@ -58,6 +32,7 @@ module.exports = async function authCommentRoutes(fastify) {
           `,
           [username, commentID]
         )
+        client.release()
         if (rows[0].userOwnComment) {
           return done()
         }
@@ -81,7 +56,15 @@ module.exports = async function authCommentRoutes(fastify) {
         const { content, authorID, articleID } = request.body
         const client = await fastify.pg.connect()
         const { rows } = await client.query(
-          'INSERT INTO comments (content, author_id, article_id) VALUES ($1, $2, $3) RETURNING *;',
+          `
+          INSERT INTO comments (content, author_id, article_id) VALUES ($1, $2, $3) 
+          RETURNING 
+            comment_id AS "commentID",
+            author_id AS "commentAuthorID",
+            content AS "commentContent",
+            created_at AS "createdAt",
+            (SELECT username FROM users WHERE id=author_id) AS "commentAuthor";
+          `,
           [content, authorID, articleID]
         )
         client.release()

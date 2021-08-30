@@ -27,6 +27,7 @@ module.exports = async function articleRoutes(fastify) {
       `
       SELECT
         a.article_id AS "articleID",
+        a.author_id AS "authorID",
         a.title, 
         a.content, 
         a.img_url AS "imageUrl",
@@ -41,7 +42,7 @@ module.exports = async function articleRoutes(fastify) {
           'commentAuthor', (
             SELECT username FROM users WHERE users.id = c.author_id
           )
-        )) AS comments
+        ) ORDER BY c.created_at ASC) AS comments
       FROM articles a
       LEFT JOIN comments c 
         ON c.article_id = a.article_id
@@ -55,7 +56,9 @@ module.exports = async function articleRoutes(fastify) {
         a.img_url,
         a.video_url,
         a.created_at,
-        u.username;
+        u.username
+      ORDER BY 
+        a.created_at DESC;
       `,
       [id]
     )
