@@ -39,7 +39,12 @@ module.exports = async function authenticateUsers(fastify) {
     client.release()
     const passwordMatch = await bcrypt.compare(password, rows[0].password)
     if (passwordMatch) {
-      const token = fastify.jwt.sign({ username, password })
+      const token = fastify.jwt.sign({
+        expiresIn: '1 day',
+        username,
+        password,
+        id: rows[0].id,
+      })
       return {
         code: 200,
         message: 'Successfully logged in!',
