@@ -12,7 +12,7 @@ exports.up = pgm => {
       article_id SERIAL PRIMARY KEY,
       author_id INTEGER REFERENCES users(id)
         ON DELETE SET NULL,
-      title VARCHAR(50),
+      title VARCHAR(250),
       content VARCHAR(5000),
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       last_edited TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
